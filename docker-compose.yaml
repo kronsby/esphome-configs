@@ -1,0 +1,10 @@
+services:
+  esphome:
+    container_name: esphome
+    image: esphome/esphome:latest
+    volumes:
+      - /home/bugs/esphome/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    privileged: true
+    network_mode: host
