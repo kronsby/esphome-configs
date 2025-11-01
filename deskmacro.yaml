@@ -1,0 +1,483 @@
+esphome:
+  name: deskmacro
+  on_boot:
+    priority: -10
+    then:
+      - lambda: !lambda |-
+              id(key_1_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_2_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_3_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_4_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_5_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_6_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_7_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_8_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_1_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_2_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_3_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_4_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_5_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_6_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_7_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_8_held_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_1_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_2_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_3_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_4_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_5_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_6_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_7_double_click_state).publish_state(false);
+      - lambda: !lambda |-
+              id(key_8_double_click_state).publish_state(false);
+
+esp32:
+  board: seeed_xiao_esp32c6
+  framework:
+    type: esp-idf
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+api:
+  encryption:
+    key: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: ""
+  password: ""
+  use_address: ""
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 1"
+    internal: true
+    id: key_1_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_1_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_1_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_1_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_1_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_1_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_1_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_1_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 1 Held"
+    id: key_1_held_state
+  - platform: template
+    name: "Desk Macro 1 Double Click"
+    id: key_1_double_click_state
+  - platform: template
+    name: "Desk Macro 1 Click"
+    id: key_1_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO1
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 2"
+    internal: true
+    id: key_2_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_2_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_2_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_2_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_2_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_2_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_2_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_2_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 2 Held"
+    id: key_2_held_state
+  - platform: template
+    name: "Desk Macro 2 Double Click"
+    id: key_2_double_click_state
+  - platform: template
+    name: "Desk Macro 2 Click"
+    id: key_2_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO2
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 3"
+    internal: true
+    id: key_3_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_3_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_3_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_3_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_3_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_3_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_3_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_3_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 3 Held"
+    id: key_3_held_state
+  - platform: template
+    name: "Desk Macro 3 Double Click"
+    id: key_3_double_click_state
+  - platform: template
+    name: "Desk Macro 3 Click"
+    id: key_3_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO21
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 4"
+    internal: true
+    id: key_4_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_4_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_4_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_4_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_4_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_4_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_4_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_4_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 4 Held"
+    id: key_4_held_state
+  - platform: template
+    name: "Desk Macro 4 Double Click"
+    id: key_4_double_click_state
+  - platform: template
+    name: "Desk Macro 4 Click"
+    id: key_4_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO22
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 5"
+    internal: true
+    id: key_5_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_5_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_5_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_5_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_5_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_5_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_5_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_5_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 5 Held"
+    id: key_5_held_state
+  - platform: template
+    name: "Desk Macro 5 Double Click"
+    id: key_5_double_click_state
+  - platform: template
+    name: "Desk Macro 5 Click"
+    id: key_5_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO23
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 6"
+    internal: true
+    id: key_6_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_6_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_6_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_6_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_6_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_6_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_6_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_6_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 6 Held"
+    id: key_6_held_state
+  - platform: template
+    name: "Desk Macro 6 Double Click"
+    id: key_6_double_click_state
+  - platform: template
+    name: "Desk Macro 6 Click"
+    id: key_6_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO16
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 7"
+    internal: true
+    id: key_7_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_7_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_7_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_7_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_7_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_7_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_7_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_7_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 7 Held"
+    id: key_7_held_state
+  - platform: template
+    name: "Desk Macro 7 Double Click"
+    id: key_7_double_click_state
+  - platform: template
+    name: "Desk Macro 7 Click"
+    id: key_7_click_state
+
+  - platform: gpio
+    pin:
+      number: GPIO17
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Desk Macro 8"
+    internal: true
+    id: key_8_button
+    filters:
+      - delayed_on: 20ms
+
+    on_press:
+      then:
+        - delay: 1000ms
+        - if:
+            condition:
+              binary_sensor.is_on: key_8_button
+            then:
+              - logger.log: "Desk Macro 1: Held"
+              - lambda: id(key_8_held_state).publish_state(true);
+              - delay: 250ms
+              - lambda: id(key_8_held_state).publish_state(false);
+
+    on_double_click:
+      min_length: 50ms
+      max_length: 350ms
+      then:
+        - logger.log: "Desk Macro 1: Double Click"
+        - lambda: id(key_8_double_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_8_double_click_state).publish_state(false);
+
+    on_click:
+      min_length: 50ms
+      max_length: 999ms
+      then:
+        - logger.log: "Desk Macro 1: Single Click"
+        - lambda: id(key_8_click_state).publish_state(true);
+        - delay: 250ms
+        - lambda: id(key_8_click_state).publish_state(false);
+
+  - platform: template
+    name: "Desk Macro 8 Held"
+    id: key_8_held_state
+  - platform: template
+    name: "Desk Macro 8 Double Click"
+    id: key_8_double_click_state
+  - platform: template
+    name: "Desk Macro 8 Click"
+    id: key_8_click_state
