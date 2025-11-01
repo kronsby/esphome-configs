@@ -1,0 +1,41 @@
+esphome:
+  name: weather-station
+
+esp8266:
+  board: nodemcuv2
+
+logger:
+
+api:
+  encryption:
+    key: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: ""
+  password: ""
+
+i2c:
+  sda: D4
+  scl: D3
+  scan: true
+
+sensor:
+  - platform: dht
+    pin: D2
+    model: AM2302
+    temperature:
+      name: "Temperature_am"
+    humidity:
+      name: "Humidity"
+    update_interval: 60s
+
+  - platform: bmp085
+    temperature:
+      name: "Temperature_bmp"
+    pressure:
+      name: "Pressure"
+    update_interval: 60s
