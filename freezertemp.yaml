@@ -1,0 +1,32 @@
+esphome:
+  name: freezertemp
+
+esp8266:
+  board: esp01_1m
+
+logger:
+
+api:
+  - encryption:
+    key: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: ""
+  password: ""
+
+captive_portal:
+
+one_wire:
+  - platform: gpio
+    id: one_wire_bus
+    pin: GPIO2
+
+sensor:
+  - platform: dallas_temp
+    one_wire_id: one_wire_bus
+    name: "Tiny Temperature"
+    update_interval: 60s
