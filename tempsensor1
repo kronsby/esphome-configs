@@ -1,0 +1,39 @@
+esphome:
+  name: tempsensor1
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: ""
+
+ota:
+  platform: esphome
+  password: ""
+
+wifi:
+  ssid: ""
+  password: ""
+
+i2c:
+  sda: 21
+  scl: 22
+  scan: true
+  id: bus_a
+
+sensor:
+  - platform: bme280_i2c
+    temperature:
+      name: "BME280 Temperature"
+      oversampling: 16x
+    pressure:
+      name: "BME280 Pressure"
+    humidity:
+      name: "BME280 Humidity"
+    address: 0x76
+    update_interval: 60s
