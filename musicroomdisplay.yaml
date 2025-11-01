@@ -1,0 +1,283 @@
+esphome:
+  name: musicroomdisplay
+  platformio_options:
+    build_flags:
+      - -D NEOPIXELBUS_NO_SERIAL_DEBUG
+
+esp32:
+  variant: esp32s2
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: ""
+  password: ""
+  use_address: ""
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: "America/New_York"
+
+# 0 is green, 1 is blue, 2 is red
+globals:
+  - id: neopixel_state
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: neopixel_color
+    type: int
+    initial_value: '0'
+    restore_value: yes
+  - id: got_humidity
+    type: bool
+    initial_value: 'false'
+  - id: got_battery
+    type: bool
+    initial_value: 'false'
+
+spi:
+  clk_pin: GPIO36 # MagTag SPI Clock pin
+  mosi_pin: GPIO35 # MagTag SPI MOSI pin
+  miso_pin: GPIO37 # MagTag SPI MISO pin
+
+output:
+  - platform: gpio
+    pin: GPIO21
+    id: enable_neopixel
+
+light:
+  - platform: esp32_rmt_led_strip
+    id: neopixel
+    chipset: WS2811
+    rgb_order: GRB
+    pin: GPIO1
+    num_leds: 4
+    name: "NeoPixel"
+    effects:
+      - lambda:
+          name: Green
+          lambda: |-
+            auto call = id(neopixel).turn_on();
+            call.set_transition_length(500);
+            call.set_brightness(0.25);
+            call.set_color_mode(ColorMode::RGB_COLD_WARM_WHITE);
+            call.set_rgb(0.1, 1.0, 0.3);
+            call.perform();
+      - lambda:
+          name: Red
+          lambda: |-
+            auto call = id(neopixel).turn_on();
+            call.set_transition_length(500);
+            call.set_brightness(0.25);
+            call.set_color_mode(ColorMode::RGB_COLD_WARM_WHITE);
+            call.set_rgb(1.0, 0.2, 0.1);
+            call.perform();
+      - lambda:
+          name: Blue
+          lambda: |-
+            auto call = id(neopixel).turn_on();
+            call.set_transition_length(500);
+            call.set_brightness(0.25);
+            call.set_color_mode(ColorMode::RGB_COLD_WARM_WHITE);
+            call.set_rgb(0.1, 0.3, 1.0);
+            call.perform();
+
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO15
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: Button Left
+    filters:
+      - delayed_on: 50ms
+    on_press:
+      - lambda: |-
+          id(neopixel_state) = !id(neopixel_state);
+          ESP_LOGI("button", "NeoPixel state toggled to: %s", id(neopixel_state) ? "ON" : "OFF");
+          ESP_LOGI("button", "CONFIRM: neopixel_state after toggle: %s", id(neopixel_state) ? "true" : "false");
+
+          if (id(neopixel_state)) {
+            auto call = id(neopixel).turn_on();
+            call.perform();
+          } else {
+            auto call = id(neopixel).turn_off();
+            call.perform();
+          }
+
+          id(epaper_display).update();
+
+  - platform: gpio
+    pin:
+      number: GPIO11
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: Button Right
+  - platform: gpio
+    pin:
+      number: GPIO14
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: Button Up
+  - platform: gpio
+    pin:
+      number: GPIO12
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    name: Button Down
+
+font:
+  - file:
+      type: gfonts
+      family: Bitcount Prop Double
+      weight: 300
+    id: large_font
+    size: 80
+  - file:
+      type: gfonts
+      family: Bitcount Prop Double
+      weight: 300
+    id: medium_bold_font
+    size: 20
+  - file:
+      type: gfonts
+      family: Intel One Mono
+      weight: 400
+    id: small_font
+    bpp: 2
+    size: 13
+
+graph:
+  - id: graph_humidity
+    duration: 10min
+    border: True
+    width: 170
+    height: 55
+    max_value: 100.0
+    min_value: 0.0
+    y_grid: 10.0
+    traces:
+      - sensor: music_room_humidity
+        line_thickness: 2
+        continuous: True
+
+display:
+  - platform: waveshare_epaper
+    cs_pin: GPIO8    # MagTag Chip Select pin
+    dc_pin: GPIO7   # MagTag Data/Command pin
+    reset_pin: GPIO6 # MagTag Reset pin
+    busy_pin: GPIO5  # MagTag Busy pin
+    model: gdey029t94
+    id: epaper_display
+    reset_duration: 200ms
+    update_interval: never
+    rotation: 270
+    lambda: |-
+      ESP_LOGI("display", "Updating display");
+      ESP_LOGI("display", "neopixel_state is: %s", id(neopixel_state) ? "true" : "false");
+
+      it.strftime(0, 0, id(small_font), "%Y-%m-%d", id(homeassistant_time).now());
+      it.strftime(0, 15, id(small_font), "%I:%M %P", id(homeassistant_time).now());
+      it.printf(0, 45, id(medium_bold_font), "Humidity:");
+      it.printf((it.get_width()/2) - 75, (it.get_height()/2)-10, id(large_font), "%.1f%%", id(music_room_humidity).state);
+      it.graph(120, 0, id(graph_humidity));
+      it.printf(177, 50, id(small_font), "6 hours");
+      it.printf(0, it.get_height()-25, id(small_font), "%.0f%%", id(music_room_display_battery).state);
+
+
+      if (id(neopixel_state) == true) {
+        ESP_LOGI("display", "Neopixel is on");
+        if (!isnan(id(music_room_humidity).state)) {
+          float humidity = id(music_room_humidity).state;
+          auto call = id(neopixel).turn_on();
+          if (humidity >= 40.0 && humidity <= 60.0) {
+            call.set_effect("Green");
+            ESP_LOGI("display", "Humidity just right (Green)");
+          } else if (humidity < 40.0) {
+            call.set_effect("Blue");
+            ESP_LOGI("display", "Humidity low (Blue)");
+          } else if (humidity > 60.0) {
+            call.set_effect("Red");
+            ESP_LOGI("display", "Humidity high (Red)");
+          }
+          call.perform();
+        }
+      } else {
+        auto call = id(neopixel).turn_off();
+        call.perform();
+        ESP_LOGI("display", "Neopixel is Off, no color update.");
+      }
+
+
+sensor:
+  - platform: homeassistant
+    name: "Music Room Humidity"
+    id: music_room_humidity
+    entity_id: sensor.bme280_humidity
+    on_value:
+      then:
+        - globals.set:
+            id: got_humidity
+            value: 'true'
+        - component.update: epaper_display
+        - delay: 60s
+        - deep_sleep.enter:
+            id: deep_sleep_component
+
+  - platform: adc
+    pin: GPIO4
+    name: "Battery Voltage"
+    id: music_room_display_voltage
+    update_interval: 5s
+    attenuation: 12dB
+    filters:
+      - multiply: 2.0
+    on_value:
+      then:
+        - globals.set:
+            id: got_battery
+            value: 'true'
+        - component.update: music_room_display_battery
+
+  - platform: template
+    name: "Music Room Display Battery"
+    id: music_room_display_battery
+    unit_of_measurement: "%"
+    device_class: battery
+    lambda: |-
+      float voltage = id(music_room_display_voltage).state;
+      ESP_LOGI("battery", "Battery voltage: %.2f", voltage);
+      float percentage = (voltage-3.3) / (4.4-3.0) * 100;
+
+      if (percentage > 100.0) {
+        return 100.0;
+      }
+      if (percentage < 0.0) {
+        return 0.0;
+      }
+      return percentage;
+
+deep_sleep:
+  id: deep_sleep_component
+  run_duration: 60s
+  sleep_duration: 5min
