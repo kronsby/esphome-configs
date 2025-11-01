@@ -1,0 +1,27 @@
+esphome:
+  name: motionsensor1
+
+esp32:
+  board: node32s
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: ""
+  password: ""
+
+binary_sensor:
+  - platform: gpio
+    pin: 26
+    name: "Motion Sensor 1"
+    device_class: motion
